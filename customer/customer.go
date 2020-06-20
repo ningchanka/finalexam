@@ -12,7 +12,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(AuthMiddleware)
 
 	r.POST("/customers", CreateCustomerHandler)
-	r.GET("/customers/:id", tempHandler)
+	r.GET("/customers/:id", GetCustomerByIdHandler)
 	r.GET("/customers", tempHandler)
 	r.PUT("/customers/:id", UpdateCustomerHandler)
 	r.DELETE("/customers/:id", DeleteCustomerHandler)
