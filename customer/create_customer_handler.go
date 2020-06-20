@@ -1,10 +1,12 @@
 package customer
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ningchanka/finalexam/database"
+	"github.com/ningchanka/finalexam/errors"
 )
 
 func CreateCustomerHandler(c *gin.Context) {
@@ -14,20 +16,27 @@ func CreateCustomerHandler(c *gin.Context) {
 		return
 	}
 
-	stmt, err := database.Conn().Prepare("INSERT INTO customer (name, email, status) VALUES ($1, $2, $3) RETURNING id")
+	err := createCustomerService(database.Conn(), &customer)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	c.JSON(http.StatusCreated, customer)
+}
+
+func createCustomerService(db *sql.DB, customer *Customer) error {
+	stmt, err := db.Prepare("INSERT INTO customer (name, email, status) VALUES ($1, $2, $3) RETURNING id")
+	if err != nil {
+		return errors.New(err, 666, "can't prepare insert sstatement")
 	}
 
 	row := stmt.QueryRow(customer.Name, customer.Email, customer.Status)
 	var id int
 	err = row.Scan(&id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return errors.New(err, 666, "can't exec insert")
 	}
 	customer.ID = id
-
-	c.JSON(http.StatusCreated, customer)
+	return nil
 }
