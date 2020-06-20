@@ -11,10 +11,10 @@ import (
 
 func GetCustomerByIdHandler(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	customer, err := getCustomerByIdService(database.Conn(), id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -34,15 +34,18 @@ func GetCustomersHandler(c *gin.Context) {
 func getCustomerByIdService(db *sql.DB, id string) (*Customer, error) {
 	stmt, err := db.Prepare("SELECT id, name, email, status FROM customer WHERE id = $1")
 	if err != nil {
-		return nil, errors.New(err, 666, "can't prepare select by id statement")
+		return nil, errors.New(err, 500, 1000, "can't prepare select by id statement")
 	}
 
 	row := stmt.QueryRow(id)
 
 	cus := &Customer{}
 	err = row.Scan(&cus.ID, &cus.Name, &cus.Email, &cus.Status)
+	if err != nil && err == sql.ErrNoRows {
+		return nil, errors.New(err, 404, 404, "not found")
+	}
 	if err != nil {
-		return nil, errors.New(err, 666, "can't exec select by id")
+		return nil, errors.New(err, 500, 1001, "can't exec select by id")
 	}
 
 	return cus, nil
@@ -51,12 +54,12 @@ func getCustomerByIdService(db *sql.DB, id string) (*Customer, error) {
 func getCustomersService(db *sql.DB) ([]*Customer, error) {
 	stmt, err := db.Prepare("SELECT id, name, email, status FROM customer")
 	if err != nil {
-		return nil, errors.New(err, 666, "can't prepare select all statement")
+		return nil, errors.New(err, 500, 1000, "can't prepare select all statement")
 	}
 
 	rows, err := stmt.Query()
 	if err != nil {
-		return nil, errors.New(err, 666, "can't exec select all")
+		return nil, errors.New(err, 500, 1001, "can't exec select all")
 	}
 
 	items := []*Customer{}

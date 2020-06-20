@@ -28,12 +28,12 @@ func UpdateCustomerHandler(c *gin.Context) {
 func updateCustomerService(db *sql.DB, customer *Customer) error {
 	stmt, err := db.Prepare("UPDATE customer SET name=$2, email=$3, status=$4 WHERE id = $1")
 	if err != nil {
-		return errors.New(err, 666, "can't prepare update statement")
+		return errors.New(err, 500, 1000, "can't prepare update statement")
 	}
 
 	_, err = stmt.Exec(customer.ID, customer.Name, customer.Email, customer.Status)
 	if err != nil {
-		return errors.New(err, 666, "can't exec update")
+		return errors.New(err, 500, 1001, "can't exec update")
 	}
 
 	return nil

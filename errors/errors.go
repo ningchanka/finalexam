@@ -1,21 +1,25 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Error struct {
-	Err     error
-	Code    int
-	Message string
+	Err        error  `json:"err"`
+	StatusCode int    `json:"status_code"`
+	Code       int    `json:"code"`
+	Message    string `json:"message"`
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("err: %s, code: %d, message: %s", e.Err, e.Code, e.Message)
+	return fmt.Sprintf("err: %s, statusCode: %d, code: %d, message: %s", e.Err, e.StatusCode, e.Code, e.Message)
 }
 
-func New(err error, code int, msg string) *Error {
+func New(err error, statusCode int, code int, msg string) *Error {
 	return &Error{
-		Err:     err,
-		Code:    code,
-		Message: msg,
+		Err:        err,
+		StatusCode: statusCode,
+		Code:       code,
+		Message:    msg,
 	}
 }

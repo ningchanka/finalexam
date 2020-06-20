@@ -26,12 +26,12 @@ func DeleteCustomerHandler(c *gin.Context) {
 func deleteCustomerService(db *sql.DB, id string) error {
 	stmt, err := db.Prepare("DELETE FROM customer WHERE id = $1")
 	if err != nil {
-		return errors.New(err, 666, "can't prepare delete statement")
+		return errors.New(err, 500, 1000, "can't prepare delete statement")
 	}
 
 	_, err = stmt.Exec(id)
 	if err != nil {
-		return errors.New(err, 666, "can't exec delete")
+		return errors.New(err, 500, 1001, "can't exec delete")
 	}
 
 	return nil

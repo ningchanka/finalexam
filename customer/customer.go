@@ -1,8 +1,6 @@
 package customer
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,13 +15,4 @@ func SetupRouter() *gin.Engine {
 	r.PUT("/customers/:id", UpdateCustomerHandler)
 	r.DELETE("/customers/:id", DeleteCustomerHandler)
 	return r
-}
-
-func tempHandler(c *gin.Context) {
-	resp := &struct {
-		message string
-	}{
-		message: "temp",
-	}
-	c.JSON(http.StatusOK, resp)
 }
