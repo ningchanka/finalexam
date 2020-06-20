@@ -21,6 +21,16 @@ func GetCustomerByIdHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
+func GetCustomersHandler(c *gin.Context) {
+	customer, err := getCustomersService(database.Conn())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, customer)
+}
+
 func getCustomerByIdService(db *sql.DB, id string) (*Customer, error) {
 	stmt, err := db.Prepare("SELECT id, name, email, status FROM customer WHERE id = $1")
 	if err != nil {
@@ -36,4 +46,28 @@ func getCustomerByIdService(db *sql.DB, id string) (*Customer, error) {
 	}
 
 	return cus, nil
+}
+
+func getCustomersService(db *sql.DB) ([]*Customer, error) {
+	stmt, err := db.Prepare("SELECT id, name, email, status FROM customer")
+	if err != nil {
+		return nil, errors.New(err, 666, "can't prepare select all statement")
+	}
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return nil, errors.New(err, 666, "can't exec select all")
+	}
+
+	items := []*Customer{}
+	for rows.Next() {
+		cus := &Customer{}
+		err := rows.Scan(&cus.ID, &cus.Name, &cus.Email, &cus.Status)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, cus)
+	}
+
+	return items, nil
 }
